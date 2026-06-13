@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Documentación de tokens · Dalton Foundations 2.0</title>
+<style>
+  :root{
+    --ink:#14181b;--ink-soft:#4a555c;--line:#e3e0d8;
+    --paper:#f5f2ea;--paper-2:#fbf9f3;
+    --tobe:#e02667;
+    --prim:#7a5cff;--sem:#0aa37a;--comp:#e08a00;
+    --shadow:0 1px 2px rgba(20,24,27,.05),0 8px 30px -12px rgba(20,24,27,.18);
+    --mono:'SF Mono',ui-monospace,'Cascadia Code','Roboto Mono',Menlo,monospace;
+    --sans:'Foco',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{font-family:var(--sans);color:var(--ink);line-height:1.5;-webkit-font-smoothing:antialiased;
+    background:radial-gradient(1000px 500px at 90% -10%,rgba(224,38,103,.05),transparent 60%),var(--paper)}
+  .layout{display:grid;grid-template-columns:250px 1fr;align-items:start;max-width:1280px;margin:0 auto}
+  @media(max-width:900px){.layout{grid-template-columns:1fr}}
+  aside{position:sticky;top:0;height:100vh;overflow-y:auto;padding:30px 20px;
+    border-right:1px solid var(--line);background:rgba(251,249,243,.75);backdrop-filter:blur(6px)}
+  @media(max-width:900px){aside{position:static;height:auto;border-right:none;border-bottom:1px solid var(--line)}}
+  .back{font-family:var(--mono);font-size:12px;color:var(--ink-soft);text-decoration:none;display:inline-block;margin-bottom:22px}
+  .back:hover{color:var(--tobe)}
+  aside h1{font-size:16px;margin-bottom:3px}
+  aside .sub{font-family:var(--mono);font-size:11px;color:var(--ink-soft);margin-bottom:20px}
+  nav a{display:block;font-size:13px;color:var(--ink-soft);text-decoration:none;padding:6px 10px;border-radius:8px;margin-bottom:1px}
+  nav a:hover{background:#fff;color:var(--ink)}
+  nav a .ct{float:right;font-family:var(--mono);font-size:10px;color:#aab3b8}
+  nav .grp{font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;margin:16px 0 5px 10px}
+  nav .grp.p{color:var(--prim)}nav .grp.s{color:var(--sem)}nav .grp.c{color:var(--comp)}
+  main{padding:clamp(26px,4vw,52px) clamp(18px,4vw,48px);min-width:0}
+  .eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-soft)}
+  h2.pagetitle{font-size:clamp(26px,4vw,40px);letter-spacing:-.02em;font-weight:800;margin-top:10px;max-width:22ch}
+  .lede{margin-top:12px;color:var(--ink-soft);max-width:70ch;font-size:15px}
+
+  /* cascada diagram */
+  .cascade{margin-top:30px;background:#14181b;border-radius:18px;padding:clamp(18px,3vw,30px);color:#f5f2ea;box-shadow:var(--shadow);overflow-x:auto}
+  .cascade .lbl{font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:#8c97a0;margin-bottom:16px}
+  .casc-flow{display:grid;grid-template-columns:1fr auto 1fr auto 1fr;gap:0;align-items:stretch;min-width:680px}
+  .casc-col{display:flex;flex-direction:column;gap:8px}
+  .casc-col h4{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;margin-bottom:4px}
+  .casc-col.p h4{color:#b9a8ff}.casc-col.s h4{color:#5fe0b8}.casc-col.c h4{color:#ffc46b}
+  .casc-col.s{position:relative;background:rgba(10,163,122,.10);border:1px dashed rgba(95,224,184,.55);border-radius:12px;padding:9px;margin:-9px}
+  .casc-col.s::after{content:"✓ la que usan los diseñadores";position:absolute;top:-9px;right:8px;font-family:var(--mono);font-size:9px;letter-spacing:.05em;color:#0b1416;background:#5fe0b8;padding:2px 7px;border-radius:6px}
+  .govbar{margin-top:18px;display:flex;gap:13px;align-items:flex-start;background:#fff;border:1px solid var(--line);border-left:4px solid var(--sem);border-radius:13px;padding:15px 19px;box-shadow:var(--shadow);font-size:14px;color:var(--ink-soft);line-height:1.55}
+  .govbar span{font-size:18px;flex:none}
+  .govbar strong{color:var(--ink)}
+  .govbar b.ed{color:var(--sem)}
+  .casc-chip{background:#1d2329;border:1px solid #2b333b;border-radius:10px;padding:9px 12px;font-family:var(--mono);font-size:12px}
+  .casc-chip small{display:block;color:#8c97a0;font-size:10.5px;margin-top:2px;font-family:var(--sans)}
+  .casc-arrow{display:flex;align-items:center;color:#6a767f;font-size:22px;padding:0 14px}
+
+  section.tok{margin-top:46px;scroll-margin-top:18px}
+  .tok-head{display:flex;align-items:center;gap:11px;margin-bottom:5px;flex-wrap:wrap}
+  .tok-head h3{font-size:20px;letter-spacing:-.01em;font-family:var(--mono)}
+  .badge{font-family:var(--mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:#fff;padding:4px 9px;border-radius:7px}
+  .badge.p{background:var(--prim)}.badge.s{background:var(--sem)}.badge.c{background:var(--comp)}
+  .modes{font-family:var(--mono);font-size:10.5px;color:var(--ink-soft);background:#fff;border:1px solid var(--line);padding:3px 9px;border-radius:999px}
+  .tok-desc{color:var(--ink-soft);font-size:14px;margin:6px 0 16px;max-width:76ch}
+  .tok-desc code{font-family:var(--mono);font-size:12.5px;background:#fff;border:1px solid var(--line);padding:1px 5px;border-radius:5px}
+
+  table{width:100%;border-collapse:collapse;background:var(--paper-2);border:1px solid var(--line);border-radius:13px;overflow:hidden;box-shadow:var(--shadow);margin-bottom:14px}
+  th,td{text-align:left;padding:9px 13px;font-size:12.8px;border-bottom:1px solid var(--line);vertical-align:middle}
+  th{font-family:var(--mono);font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-soft);background:#fff}
+  tr:last-child td{border-bottom:none}
+  td.tk{font-family:var(--mono);font-size:12.5px;white-space:nowrap}
+  td.vl{font-family:var(--mono);font-size:12px;color:var(--ink-soft);white-space:nowrap}
+  .ref{color:var(--sem);font-weight:600;font-family:var(--mono);font-size:12px}
+  .ref.toprim{color:var(--prim)}
+  .sw{display:inline-block;width:17px;height:17px;border-radius:5px;border:1px solid rgba(0,0,0,.13);vertical-align:-4px;margin-right:8px}
+  .bar{display:inline-block;height:12px;background:var(--prim);opacity:.6;border-radius:3px;vertical-align:-1px}
+  .ramp{display:flex;gap:0;border-radius:9px;overflow:hidden;border:1px solid var(--line);margin-bottom:5px}
+  .ramp div{flex:1;height:38px;position:relative}
+  .ramp div span{position:absolute;bottom:3px;left:50%;transform:translateX(-50%);font-family:var(--mono);font-size:9px}
+  .ramp-name{font-family:var(--mono);font-size:12px;margin:10px 0 4px}
+  .grouph{font-family:var(--mono);font-size:12px;letter-spacing:.05em;text-transform:uppercase;color:var(--ink-soft);margin:20px 0 8px}
+  .note{margin:10px 0 0;font-size:12.5px;color:var(--ink-soft);border-left:3px solid var(--tobe);padding-left:12px;max-width:78ch}
+  footer{margin-top:60px;padding-top:22px;border-top:1px solid var(--line);color:var(--ink-soft);font-size:12px;font-family:var(--mono);line-height:1.7}
+  .pillct{font-family:var(--mono);font-size:10.5px;background:#fff;border:1px solid var(--line);border-radius:999px;padding:2px 8px;margin-left:6px;color:var(--ink-soft)}
+</style>
+</head>
+<body>
+<div class="layout">
+<aside>
+  <a class="back" href="index.html">&larr; Volver a la guía</a>
+  <h1>Tokens · Dalton Foundations 2.0</h1>
+  <div class="sub">10 colecciones · leídas de las variables del archivo</div>
+  <nav>
+    <a href="#arquitectura">La cascada</a>
+    <div class="grp p">Primitivos</div>
+    <a href="#number-scale">number-scale <span class="ct">21</span></a>
+    <a href="#color-prim">color-prim <span class="ct">74</span></a>
+    <a href="#typography-prim">typography-prim <span class="ct">16</span></a>
+    <div class="grp s">Semánticos</div>
+    <a href="#spacing">spacing <span class="ct">13</span></a>
+    <a href="#radius">radius <span class="ct">6</span></a>
+    <a href="#stroke">stroke <span class="ct">4</span></a>
+    <a href="#devices">devices <span class="ct">5</span></a>
+    <a href="#color-sem">color-sem <span class="ct">71</span></a>
+    <a href="#typography-sem">typography-sem <span class="ct">44</span></a>
+    <div class="grp c">Componentes</div>
+    <a href="#color-comp">color-comp <span class="ct">200</span></a>
+  </nav>
+</aside>
+
+<main>
+  <span class="eyebrow">Documentación · to be</span>
+  <h2 class="pagetitle">Las 10 colecciones de variables del sistema nuevo</h2>
+  <p class="lede">Inventario completo leído directamente de las <strong>variables</strong> del archivo Dalton Foundations 2.0 (no de las páginas). Cada flecha <span class="ref">→</span> es un alias real: el token no guarda el valor, apunta a otro token. Así se forma la cascada <strong>componente → semántico → primitivo</strong>. Los diseñadores <strong>usan solo los tokens de la capa semántica</strong>; los casos de uso de cada tabla son la <strong>descripción real escrita en cada variable</strong> de Figma.</p>
+
+  <div class="cascade" id="arquitectura">
+    <div class="lbl">La cascada · cómo fluyen los valores</div>
+    <div class="casc-flow">
+      <div class="casc-col p">
+        <h4>1 · Primitivos</h4>
+        <div class="casc-chip">number-scale<small>21 números base: 0…96, 9999</small></div>
+        <div class="casc-chip">color-prim<small>7 rampas de color 50–900 + alphas</small></div>
+        <div class="casc-chip">typography-prim<small>tamaños, familias, pesos</small></div>
+      </div>
+      <div class="casc-arrow">→</div>
+      <div class="casc-col s">
+        <h4>2 · Semánticos</h4>
+        <div class="casc-chip">spacing<small>inset / stack / section · responsive</small></div>
+        <div class="casc-chip">radius · stroke · devices<small>tallas con nombre, grids</small></div>
+        <div class="casc-chip">color-sem<small>surface / content / border / action · light+dark</small></div>
+        <div class="casc-chip">typography-sem<small>tamaños por rol · desktop+mobile</small></div>
+      </div>
+      <div class="casc-arrow">→</div>
+      <div class="casc-col c">
+        <h4>3 · Componentes</h4>
+        <div class="casc-chip">color-comp<small>button, input, select, tab, radio, checkbox × estados × propiedades</small></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="govbar">
+    <span>✋</span>
+    <div><strong>Qué usa un diseñador:</strong> al diseñar se aplican únicamente los tokens de la <b class="ed">capa semántica</b> (columna del medio). Los <span style="color:var(--prim)">primitivos</span> son la fuente de verdad y no se aplican directo; los <span style="color:var(--comp)">componentes</span> heredan solos. Cada token de abajo indica su capa con un color — los morados y naranjas no se usan al maquetar.</div>
+  </div>
+
+  <!-- ================= PRIMITIVOS ================= -->
+
+  <section class="tok" id="number-scale">
+    <div class="tok-head"><h3>number-scale</h3><span class="badge p">Primitivo</span><span class="pillct">21 variables</span></div>
+    <p class="tok-desc">La escala numérica madre. Todos los tokens dimensionales del sistema (spacing, radius, stroke, grids) apuntan aquí. Ningún componente la usa directo.</p>
+    <div id="r-numscale"></div>
+  </section>
+
+  <section class="tok" id="color-prim">
+    <div class="tok-head"><h3>color-prim</h3><span class="badge p">Primitivo</span><span class="modes">modo: light</span><span class="pillct">74 variables</span></div>
+    <p class="tok-desc">La paleta cruda: 7 rampas de 50 a 900 (grayscale agrega el paso 10), más alphas y el color de sombra. Nomenclatura funcional desacoplada de la marca — lista para white-label y theming.</p>
+    <div id="r-colorprim"></div>
+  </section>
+
+  <section class="tok" id="typography-prim">
+    <div class="tok-head"><h3>typography-prim</h3><span class="badge p">Primitivo</span><span class="pillct">16 variables</span></div>
+    <p class="tok-desc">Los átomos tipográficos: la escala de tamaños, las dos familias y los cuatro pesos.</p>
+    <div id="r-typoprim"></div>
+  </section>
+
+  <!-- ================= SEMÁNTICOS ================= -->
+
+  <section class="tok" id="spacing">
+    <div class="tok-head"><h3>spacing</h3><span class="badge s">Semántico</span><span class="modes">modos: desktop · mobile</span><span class="pillct">13 variables</span></div>
+    <p class="tok-desc">El espaciado por intención, no por número: <code>inset</code> (padding interno), <code>stack</code> (separación entre elementos apilados) y <code>section</code> (aire entre secciones). Cada uno en densidades compact → spacious. Es <strong>responsive</strong>: el mismo token resuelve a un valor distinto en desktop y mobile. Todos los valores son alias a <span class="ref toprim">number-scale</span>.</p>
+    <div id="r-spacing"></div>
+    <p class="note">Ejemplo del poder responsive: <code>space/section/default</code> mide 40 en desktop y 24 en mobile — el diseñador aplica un solo token y el layout se adapta.</p>
+  </section>
+
+  <section class="tok" id="radius">
+    <div class="tok-head"><h3>radius</h3><span class="badge s">Semántico</span><span class="pillct">6 variables</span></div>
+    <p class="tok-desc">Los radios dejaron de ser números (radius/6) o nombres atados a un componente (L Card) y ahora describen la <em>forma</em>: de <code>none</code> a <code>pill</code>. Todos alias a <span class="ref toprim">number-scale</span>.</p>
+    <div id="r-radius"></div>
+  </section>
+
+  <section class="tok" id="stroke">
+    <div class="tok-head"><h3>stroke</h3><span class="badge s">Semántico</span><span class="pillct">4 variables</span></div>
+    <p class="tok-desc">Grosores de borde con nombre. Alias a <span class="ref toprim">number-scale</span>.</p>
+    <div id="r-stroke"></div>
+  </section>
+
+  <section class="tok" id="devices">
+    <div class="tok-head"><h3>devices</h3><span class="badge s">Semántico</span><span class="modes">modos: mobile · tablet · desktop</span><span class="pillct">5 variables</span></div>
+    <p class="tok-desc">Breakpoints y retícula por dispositivo. Columnas, gutter y margen apuntan a <span class="ref toprim">number-scale</span> y cambian según el modo.</p>
+    <div id="r-devices"></div>
+  </section>
+
+  <section class="tok" id="color-sem">
+    <div class="tok-head"><h3>color-sem</h3><span class="badge s">Semántico</span><span class="modes">modos: light · dark</span><span class="pillct">71 variables</span></div>
+    <p class="tok-desc">El corazón del theming: cada rol de color apunta a un paso distinto de <span class="ref toprim">color-prim</span> según el modo. Cambiar a dark mode no toca ni un componente — solo cambia a qué primitivo resuelve cada rol. Cinco familias: <code>surface</code>, <code>content/text</code>, <code>content/icon</code>, <code>border</code> y <code>action</code>.</p>
+    <div id="r-colorsem"></div>
+  </section>
+
+  <section class="tok" id="typography-sem">
+    <div class="tok-head"><h3>typography-sem</h3><span class="badge s">Semántico</span><span class="pillct">44 variables</span></div>
+    <p class="tok-desc">Tamaños e interlineados por rol (title, subtitle, paragraph, caption, button) y por breakpoint. Los tamaños son alias a <span class="ref toprim">typography-prim</span>; un mismo rol baja de talla en mobile automáticamente.</p>
+    <div id="r-typosem"></div>
+  </section>
+
+  <!-- ================= COMPONENTES ================= -->
+
+  <section class="tok" id="color-comp">
+    <div class="tok-head"><h3>color-comp</h3><span class="badge c">Componente</span><span class="pillct">200 variables</span></div>
+    <p class="tok-desc">La capa final: cada componente declara qué token semántico usa cada una de sus partes (surface, border, text, icon, label, ring, helper…) en cada estado (default, hover, pressed, focus, filled, open, disabled, error). <strong>Ninguna apunta a un color directo</strong> — todas son alias a <span class="ref">color-sem</span>, cerrando la cascada.</p>
+    <div id="r-colorcomp"></div>
+    <p class="note">Lectura de una fila: <code>button/primary/default/surface → action/primary/default</code>. Y como <code>action/primary/default → magenta/500</code> en light, el botón termina siendo #e02667 sin que nadie haya escrito ese hex en el componente.</p>
+  </section>
+
+  <footer>
+    Dalton Foundations 2.0 · inventario completo de variables · 10 colecciones · 454 variables<br>
+    Leído directamente de las colecciones de variables del archivo vía API de Figma (no de los nodos de página).
+  </footer>
+</main>
+</div>
+
+<script>
+/* ============ DATOS (volcados de las variables del archivo) ============ */
+const PRIM = {
+ cyan:{50:'#e8f9ff',100:'#aaddee',200:'#80cce5',300:'#55bbdd',400:'#2aaad5',500:'#0099cc',600:'#0080aa',700:'#006688',800:'#004c66',900:'#001f29'},
+ magenta:{50:'#ffeaf1',100:'#fcd5e2',200:'#f796b8',300:'#f472a0',400:'#f04489',500:'#e02667',600:'#a81c4d',700:'#86173e',800:'#5a0f29',900:'#380a1a'},
+ purple:{50:'#f5f4fd',100:'#edebfb',200:'#dddbf8',300:'#c3bdf2',400:'#a498ea',500:'#846ee1',600:'#6837c8',700:'#5235a2',800:'#442d85',900:'#2f195a'},
+ grayscale:{10:'#ffffff',50:'#f9fafb',100:'#f2f5f5',200:'#e7ebed',300:'#d4dbde',400:'#b8c3c8',500:'#8f9fa7',600:'#778790',700:'#65737b',800:'#545e62',900:'#2f373c'},
+ orange:{50:'#fef5ee',100:'#fcead7',200:'#f8d1ad',300:'#f4b07a',400:'#ef854a',500:'#e96320',600:'#de5027',700:'#b83c1f',800:'#732d0b',900:'#4d1e08'},
+ red:{50:'#fef2f5',100:'#fee6ec',200:'#fcc1d0',300:'#fa83a2',400:'#f84574',500:'#f60846',600:'#c40638',700:'#93042a',800:'#62031c',900:'#31010e'},
+ green:{50:'#f1fff4',100:'#c8f6d8',200:'#85d9a3',300:'#51c97c',400:'#39c16a',500:'#00af3f',600:'#1b8d45',700:'#136c34',800:'#0b4721',900:'#042510'},
+ alpha:{'white-0':'#ffffff00','cyan-900-64':'#001f29a3'},
+ shadows:{'dp/blur':'#00668880'}
+};
+function hexOf(ref){ // 'cyan/500' → hex
+  const i=ref.indexOf('/'); const fam=ref.slice(0,i), step=ref.slice(i+1);
+  return (PRIM[fam]&&PRIM[fam][step])||null;
+}
+const NUMSCALE=[0,1,2,3,4,6,8,12,14,16,20,24,32,40,48,56,64,72,80,96,9999];
+const SPACING=[
+ ['space/inset/none',0,0],['space/inset/compact',2,2],['space/inset/default',4,4],['space/inset/comfortable',8,8],['space/inset/spacious',16,12],
+ ['space/stack/compact',4,4],['space/stack/default',8,8],['space/stack/comfortable',12,12],['space/stack/spacious',24,16],
+ ['space/section/compact',20,16],['space/section/default',40,24],['space/section/spacious',64,40],['space/section/super spacious',80,64]
+];
+const RADIUS=[['radius/none',0],['radius/sharp',4],['radius/default',12],['radius/container-sm',16],['radius/container-lg',24],['radius/pill',9999]];
+const STROKE=[['stroke/none',0],['stroke/thin',1],['stroke/thick',2],['stroke/heavy',3]];
+const DEVICES=[
+ ['breakpoints-scale/Width',375,768,1920,false],['breakpoints-scale/Height',852,1024,1080,false],
+ ['grids/columns',4,8,12,true],['grids/gutter',16,20,32,true],['grids/margin',16,64,96,true]
+];
+const TYPOPRIM={sizes:[12,14,16,18,20,24,28,32,40,48],family:[['Font/family/heading','Foco'],['Font/family/body','Roboto']],weight:[['Font/weight/light','Light'],['Font/weight/regular','Regular'],['Font/weight/bold','Bold'],['Font/weight/italic','Italic']]};
+const COLORSEM=[ // [name, lightRef, darkRef]
+ ['surface/primary-(white)','grayscale/10','cyan/900'],['surface/secondary-(cyan-light)','cyan/50','cyan/800'],['surface/tertiary-(grey)','grayscale/100','cyan/700'],
+ ['surface/brand','cyan/500','cyan/500'],['surface/inverse','cyan/900','cyan/50'],['surface/overlay-layer','alpha/cyan-900-64','alpha/cyan-900-64'],['surface/surface-alpha','alpha/white-0','alpha/white-0'],
+ ['surface/status/info','cyan/50','cyan/800'],['surface/status/warning','orange/50','orange/700'],['surface/status/success','green/50','green/800'],['surface/status/error','red/50','red/700'],
+ ['surface/status/disabled','grayscale/100','grayscale/800'],['surface/status/disabled-darker','grayscale/400','grayscale/300'],
+ ['surface/interaction/ring/rest','cyan/50','cyan/800'],['surface/interaction/ring/hover','cyan/100','cyan/700'],['surface/interaction/ring/pressed','cyan/200','cyan/600'],
+ ['surface/emphasis/primary/start','cyan/50','cyan/800'],['surface/emphasis/primary/end','green/50','green/800'],['surface/emphasis/secondary/start','cyan/50','cyan/800'],['surface/emphasis/secondary/end','purple/50','purple/900'],
+ ['content/text/title','cyan/600','cyan/50'],['content/text/subtitle','grayscale/900','cyan/300'],['content/text/paragraph/default','grayscale/900','cyan/300'],['content/text/paragraph/subdued','grayscale/500','grayscale/500'],
+ ['content/text/placeholder','grayscale/500','grayscale/500'],['content/text/label/default','grayscale/900','cyan/300'],['content/text/label/subdued','grayscale/500','grayscale/500'],['content/text/captions','grayscale/500','grayscale/500'],
+ ['content/text/highlight','cyan/600','cyan/50'],['content/text/on-color-(white)','grayscale/10','grayscale/10'],
+ ['content/text/status/success','green/700','green/100'],['content/text/status/error','red/600','red/300'],['content/text/status/warning','orange/700','orange/300'],['content/text/status/info','cyan/600','cyan/300'],['content/text/status/disabled','grayscale/400','grayscale/300'],
+ ['content/icon/default','grayscale/900','grayscale/500'],['content/icon/subdued','grayscale/600','grayscale/700'],['content/icon/on-color','grayscale/10','grayscale/10'],['content/icon/emphasis','cyan/500','cyan/500'],
+ ['content/icon/status/success','green/600','green/100'],['content/icon/status/error','red/500','red/300'],['content/icon/status/warning','orange/600','orange/300'],['content/icon/status/info','cyan/500','cyan/300'],['content/icon/status/disabled','grayscale/400','grayscale/300'],
+ ['border/default','grayscale/400','grayscale/400'],['border/on-color','grayscale/10','grayscale/10'],['border/subdued','grayscale/200','grayscale/600'],['border/darker','grayscale/600','grayscale/200'],
+ ['border/status/success','green/600','green/100'],['border/status/error','red/500','red/300'],['border/status/warning','orange/600','orange/300'],['border/status/info','cyan/500','cyan/300'],['border/status/disabled','grayscale/400','grayscale/400'],
+ ['border/interaction/hover','cyan/500','cyan/300'],['border/interaction/focus','cyan/500','cyan/300'],['border/interaction/selected','cyan/600','cyan/200'],
+ ['border/brand/default','cyan/500','cyan/300'],['border/brand/subtle','cyan/100','cyan/800'],['border/brand/darker','cyan/800','cyan/100'],
+ ['action/primary/default','magenta/500','magenta/800'],['action/primary/hover','magenta/400','magenta/500'],['action/primary/pressed','magenta/700','magenta/200'],
+ ['action/secondary/default','cyan/600','cyan/400'],['action/secondary/hover','cyan/500','cyan/200'],['action/secondary/pressed','cyan/700','cyan/100'],
+ ['action/tertiary/default','cyan/600','cyan/400'],['action/tertiary/hover','cyan/500','cyan/200'],['action/tertiary/pressed','cyan/700','cyan/100'],
+ ['action/link/default','cyan/600','cyan/400'],['action/link/hover','cyan/500','cyan/200'],['action/link/pressed','cyan/700','cyan/100']
+];
+const TYPOSEM={ // role: [sizeDesktop, sizeMobile, lhDesktop, lhMobile]
+ 'title/L':[48,32,60,40],'title/M':[40,24,48,32],'title/S':[32,20,40,30],
+ 'subtitle/L':[24,20,30,28],'subtitle/M':[20,16,28,20],
+ 'paragraph/L':[20,16,28,20],'paragraph/M':[16,14,20,18],'paragraph/S':[14,12,18,16],
+ 'caption/M':[14,14,18,14],'caption/S':[12,12,14,12],
+ 'button/M':[16,14,null,null],'button/S':[14,12,null,null]
+};
+const COLORCOMP={ // component → state → {prop: semRef}
+ 'button/primary':{default:{surface:'action/primary/default',border:'action/primary/hover',text:'content/text/on-color-(white)',icon:'content/icon/on-color'},hover:{surface:'action/primary/hover',border:'action/primary/hover',text:'content/text/on-color-(white)',icon:'content/icon/on-color'},pressed:{surface:'action/primary/pressed',border:'action/primary/pressed',text:'content/text/on-color-(white)',icon:'content/icon/on-color'},disabled:{surface:'surface/status/disabled',border:'border/status/disabled',text:'content/text/status/disabled',icon:'content/icon/status/disabled'}},
+ 'button/secondary':{default:{surface:'surface/primary-(white)',border:'action/secondary/default',text:'action/secondary/default',icon:'action/secondary/default'},hover:{surface:'surface/primary-(white)',border:'action/secondary/hover',text:'action/secondary/hover',icon:'action/secondary/hover'},pressed:{surface:'surface/primary-(white)',border:'action/secondary/pressed',text:'action/secondary/pressed',icon:'action/secondary/pressed'},disabled:{surface:'surface/status/disabled',border:'border/status/disabled',text:'content/text/status/disabled',icon:'content/text/status/disabled'}},
+ 'button/tertiary':{default:{surface:'surface/primary-(white)',text:'action/tertiary/default',icon:'action/tertiary/default'},hover:{surface:'surface/surface-alpha',text:'action/tertiary/hover',icon:'action/tertiary/hover'},pressed:{surface:'surface/surface-alpha',text:'action/tertiary/pressed',icon:'action/tertiary/pressed'},disabled:{surface:'surface/primary-(white)',text:'content/text/status/disabled',icon:'content/icon/status/disabled'}},
+ 'input':{default:{surface:'surface/primary-(white)',border:'border/default',placeholder:'content/text/placeholder',label:'content/text/label/default',helper:'content/text/captions',icon:'content/icon/default'},hover:{surface:'surface/primary-(white)',border:'border/interaction/hover',placeholder:'content/text/placeholder',label:'content/text/label/default',helper:'content/text/captions',icon:'content/icon/default'},focus:{surface:'surface/primary-(white)',border:'border/interaction/focus',placeholder:'content/text/placeholder',label:'content/text/label/default',helper:'content/text/captions',icon:'content/icon/default'},filled:{surface:'surface/primary-(white)',border:'border/default',placeholder:'content/text/paragraph/default',label:'content/text/label/default',helper:'content/text/captions',icon:'content/icon/default'},disabled:{surface:'surface/status/disabled',border:'border/status/disabled',placeholder:'content/text/placeholder',label:'content/text/label/subdued',helper:'content/text/captions',icon:'content/icon/status/disabled'},error:{surface:'surface/primary-(white)',border:'border/status/error',placeholder:'content/text/paragraph/default',label:'content/text/label/default',helper:'content/text/status/error',icon:'content/icon/default'}},
+ 'select':{default:{surface:'surface/primary-(white)',border:'border/default',field:'content/text/paragraph/default',label:'content/text/label/default',helper:'content/text/captions',icon:'content/icon/default'},hover:{surface:'surface/primary-(white)',border:'border/interaction/focus',field:'content/text/paragraph/default',label:'content/text/label/default',helper:'content/text/captions',icon:'content/icon/default'},focus:{surface:'surface/primary-(white)',border:'border/interaction/focus',field:'content/text/placeholder',label:'content/text/label/default',helper:'content/text/captions',icon:'content/icon/default'},open:{surface:'surface/primary-(white)',border:'border/interaction/focus',field:'content/text/paragraph/default',label:'content/text/label/default',helper:'content/text/captions',icon:'content/icon/default'},filled:{surface:'surface/primary-(white)',border:'border/default',field:'content/text/paragraph/default',label:'content/text/label/default',helper:'content/text/captions',icon:'content/icon/default'},disabled:{surface:'surface/status/disabled',border:'border/status/disabled',field:'content/text/status/disabled',label:'content/text/label/subdued',helper:'content/text/captions',icon:'content/icon/status/disabled'},error:{surface:'surface/primary-(white)',border:'border/status/error',field:'content/text/paragraph/default',label:'content/text/label/default',helper:'content/text/status/error',icon:'content/icon/default'}},
+ 'tab':{default:{surface:'surface/surface-alpha',border:'surface/surface-alpha',text:'content/text/paragraph/default',icon:'content/icon/default'},hover:{surface:'surface/surface-alpha',border:'surface/surface-alpha',text:'action/secondary/hover',icon:'content/icon/emphasis'},active:{surface:'surface/primary-(white)',border:'content/text/status/info',text:'content/text/status/info',icon:'content/text/status/info'}},
+ 'radio':{default:{surface:'surface/brand',ring:'surface/interaction/ring/rest',border:'border/brand/default',label:'content/text/label/default',icon:'content/icon/default'},hover:{surface:'surface/brand',ring:'surface/interaction/ring/hover',border:'border/brand/default',label:'content/text/label/default',icon:'content/icon/default'},pressed:{surface:'surface/brand',ring:'surface/interaction/ring/pressed',border:'border/brand/default',label:'content/text/label/default',icon:'content/icon/default'},focus:{surface:'surface/brand',ring:'surface/interaction/ring/hover',border:'border/interaction/focus',label:'content/text/label/default',icon:'content/icon/default'},disabled:{surface:'surface/status/disabled-darker',ring:'surface/status/disabled',border:'border/status/disabled',label:'content/text/status/disabled',icon:'content/icon/status/disabled'},error:{surface:'surface/surface-alpha',ring:'surface/surface-alpha',border:'border/status/error',label:'content/text/status/error',icon:'content/icon/status/error'}},
+ 'checkbox':{default:{surface:'surface/brand',ring:'surface/interaction/ring/rest',border:'border/brand/default',label:'content/text/label/default',icon:'surface/surface-alpha'},hover:{surface:'surface/brand',ring:'surface/interaction/ring/hover',border:'border/brand/default',label:'content/text/label/default',icon:'surface/surface-alpha'},pressed:{surface:'surface/brand',ring:'surface/interaction/ring/pressed',border:'border/brand/default',label:'content/text/label/default',icon:'content/icon/on-color'},focus:{surface:'surface/brand',ring:'surface/interaction/ring/hover',border:'border/interaction/focus',label:'content/text/label/default',icon:'surface/surface-alpha'},disabled:{surface:'surface/surface-alpha',ring:'surface/primary-(white)',border:'border/status/disabled',label:'content/text/status/disabled',icon:'content/icon/status/disabled'},error:{surface:'surface/surface-alpha',ring:'surface/surface-alpha',border:'border/status/error',label:'content/text/status/error',icon:'content/icon/status/error'}}
+};
+
+/* ============ RENDER ============ */
+const $=id=>document.getElementById(id);
+function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;')}
+
+/* number-scale */
+$('r-numscale').innerHTML='<table><tr><th>Variable</th><th>Valor</th><th>Muestra</th></tr>'+
+ NUMSCALE.map(n=>'<tr><td class="tk">'+n+'</td><td class="vl">'+n+'</td><td>'+(n<=96?'<span class="bar" style="width:'+Math.max(n,1)+'px"></span>':'<span class="vl">∞ (pill)</span>')+'</td></tr>').join('')+'</table>';
+
+/* color-prim ramps */
+let cp='';
+for(const fam of ['cyan','magenta','purple','grayscale','orange','red','green']){
+  const steps=Object.keys(PRIM[fam]);
+  cp+='<div class="ramp-name">'+fam+'/ <span class="vl">'+steps[0]+'–900</span></div><div class="ramp">'+
+   steps.map(s=>{const h=PRIM[fam][s];const dark=parseInt(s)>=500;return '<div style="background:'+h+'"><span style="color:'+(dark?'#fff':'#14181b')+'">'+s+'</span></div>'}).join('')+'</div>';
+}
+cp+='<table style="margin-top:14px"><tr><th>Extras</th><th>Valor</th><th></th></tr>'+
+ [['alpha/white-0','#ffffff00'],['alpha/cyan-900-64','#001f29a3'],['shadows/dp/blur','#00668880']]
+ .map(([n,h])=>'<tr><td class="tk">'+n+'</td><td class="vl">'+h+'</td><td><span class="sw" style="background:'+h+'"></span></td></tr>').join('')+'</table>';
+$('r-colorprim').innerHTML=cp;
+
+/* typography-prim */
+$('r-typoprim').innerHTML=
+ '<div class="grouph">Font/size</div><table><tr><th>Variable</th><th>Valor</th></tr>'+TYPOPRIM.sizes.map(s=>'<tr><td class="tk">Font/size/'+s+'</td><td class="vl">'+s+'</td></tr>').join('')+'</table>'+
+ '<div class="grouph">Font/family · Font/weight</div><table><tr><th>Variable</th><th>Valor</th><th>Especimen</th></tr>'+
+ TYPOPRIM.family.map(([n,v])=>'<tr><td class="tk">'+n+'</td><td class="vl">'+v+'</td><td style="font-weight:700">Protege a tus seres</td></tr>').join('')+
+ TYPOPRIM.weight.map(([n,v])=>'<tr><td class="tk">'+n+'</td><td class="vl">'+v+'</td><td style="font-weight:'+(v==='Bold'?700:400)+';font-style:'+(v==='Italic'?'italic':'normal')+'">Texto '+v.toLowerCase()+'</td></tr>').join('')+'</table>';
+
+/* ===== DESCRIPCIONES REALES (campo description de cada variable en Figma) ===== */
+const DESC={
+ "space/inset/compact":"2px · Padding interno mínimo, más angosto que compact. Para elementos muy compactos como chips pequeños. ¿Es relleno DENTRO de un contenedor muy ajustado? Igual en mobile y desktop.",
+ "space/inset/default":"16px · Padding interno por defecto de tarjetas y contenedores. ÚSALO cuando dudes a nivel de padding. Constante en mobile y desktop.",
+ "space/inset/comfortable":"16px · Padding interno por defecto de tarjetas y contenedores. ÚSALO cuando dudes a nivel de padding. Constante en mobile y desktop.",
+ "space/inset/spacious":"Padding interno amplio de paneles y tarjetas grandes. Se ajusta solo: 24 en desktop, 16 en mobile (en pantallas chicas 24 consume demasiado ancho útil).",
+ "space/stack/compact":"4px · Entre elementos muy unidos: título y subtítulo, label e input. ¿APILADOS y muy relacionados? Constante en mobile y desktop.",
+ "space/stack/default":"8px · Separación por defecto entre elementos apilados: campos de formulario, ítems de lista. ÚSALO cuando dudes entre elementos. Constante.",
+ "space/stack/comfortable":"8px · Separación por defecto entre elementos apilados: campos de formulario, ítems de lista. ÚSALO cuando dudes entre elementos. Constante.",
+ "space/stack/spacious":"Entre subgrupos apilados que necesitan respiro. Se ajusta solo: 16 en desktop, 12 en mobile (comprime para reducir scroll).",
+ "space/section/compact":"Separación por defecto entre bloques o secciones independientes. ¿Espacio ENTRE bloques distintos? Se ajusta solo: 40 en desktop, 24 en mobile.",
+ "space/section/default":"Separación por defecto entre bloques o secciones independientes. ¿Espacio ENTRE bloques distintos? Se ajusta solo: 40 en desktop, 24 en mobile.",
+ "space/section/spacious":"Separación amplia entre grandes bloques (hero, franjas full-width). Se ajusta solo: 64 en desktop, 40 en mobile.",
+ "space/section/super spacious":"Separación amplia entre grandes bloques (hero, franjas full-width). Se ajusta solo: 64 en desktop, 40 en mobile.",
+ "radius/none":"0 · Sin redondeo: tablas, celdas, elementos a sangre, secciones full-width. ¿El elemento llega al borde o es una grilla? → none.",
+ "radius/sharp":"4px · Controles compactos: inputs, chips, tags, botones pequeños. ¿Es un control pequeño de formulario? → sharp.",
+ "radius/default":"8px · Radius por defecto de elementos interactivos: botones, dropdowns, menús. ÚSALO cuando dudes en un control. → default.",
+ "radius/container-sm":"12px · Superficie contenedora compacta: tarjetas pequeñas (<120px alto), celdas de lista, tiles. Úsalo si una tarjeta pequeña con 16 se ve desproporcionada.",
+ "radius/container-lg":"24px · Superficie contenedora grande: modales, sheets, paneles destacados. Úsalo cuando el contenedor es amplio y 16 se ve pequeño.",
+ "radius/pill":"Completamente redondeado: badges, toggles, avatares, pills, botones cápsula. ¿Debe verse como píldora o círculo? → pill.",
+ "stroke/none":"0 · Sin borde. Para superficies que se separan por color de fondo o sombra, no por línea.",
+ "stroke/thin":"1px · Grosor por defecto de bordes: inputs, tarjetas, divisores, tablas. ÚSALO cuando dudes.",
+ "stroke/thick":"2px · Borde enfatizado: estado de foco, selección activa, elementos que requieren atención.",
+ "stroke/heavy":"3px · Borde fuerte: foco de alta visibilidad, estados de error marcados, énfasis máximo. Úsalo con moderación.",
+ "surface/primary-(white)":"Fondo principal para layouts y contenedores.",
+ "surface/secondary-(cyan-light)":"Fondo variante más oscura para jerarquía visual.",
+ "surface/tertiary-(grey)":"Fondo neutral para secciones secundarias.",
+ "surface/brand":"Fondo con color de marca.",
+ "surface/inverse":"Fondos oscuros o invertidos.",
+ "surface/overlay-layer":"Fondo para overlays, modales y dropdowns. Donde se tenga el propósito de distinguir un sector.",
+ "surface/surface-alpha":"Fondo para overlays, modales y dropdowns. Donde se tenga el propósito de distinguir un sector.",
+ "surface/status/info":"Fondo para estados informativos.",
+ "surface/status/warning":"Fondo para estados de advertencia.",
+ "surface/status/success":"Fondo para estados de éxito.",
+ "surface/status/error":"Fondo para estados de error.",
+ "surface/status/disabled":"Fondo para elementos deshabilitados.",
+ "surface/status/disabled-darker":"Fondo para elementos deshabilitados.",
+ "surface/interaction/ring/hover":"Anillo del control al pasar el cursor o enfocar (hover/focus). Nivel medio. Para elementos neutros, NO botones.",
+ "surface/interaction/ring/rest":"Anillo del control en reposo (radio/checkbox sin interacción). Nivel más sutil. Para elementos neutros que reaccionan, NO para botones (esos usan action/).",
+ "surface/interaction/ring/pressed":"Anillo del control al presionar (pressed). Nivel más intenso. Para elementos neutros, NO botones.",
+ "surface/emphasis/primary/start":"Inicio de degradado de alto énfasis primario (hero, destacados).",
+ "surface/emphasis/primary/end":"Fin de degradado de alto énfasis primario (hero, destacados).",
+ "surface/emphasis/secondary/start":"Inicio de degradado de énfasis secundario.",
+ "surface/emphasis/secondary/end":"Fin de degradado de énfasis secundario.",
+ "content/text/title":"Texto principal de lectura.",
+ "content/text/subtitle":"Texto de apoyo o secundario.",
+ "content/text/paragraph/default":"Texto principal de lectura.",
+ "content/text/paragraph/subdued":"Texto de baja jerarquía o auxiliar.",
+ "content/text/placeholder":"Texto de baja jerarquía o auxiliar.",
+ "content/text/label/default":"Texto principal de lectura.",
+ "content/text/label/subdued":"Texto principal de lectura.",
+ "content/text/captions":"Texto de baja jerarquía o auxiliar.",
+ "content/text/highlight":"Texto principal de lectura.",
+ "content/text/on-color-(white)":"Texto sobre superficies con color que permita la lectura; revisa contraste de accesibilidad.",
+ "content/text/status/success":"Texto para mensajes de éxito.",
+ "content/text/status/error":"Texto para mensajes de error.",
+ "content/text/status/warning":"Texto para mensajes de advertencia.",
+ "content/text/status/info":"Texto para mensajes informativos.",
+ "content/text/status/disabled":"Texto para estados deshabilitados.",
+ "content/icon/default":"Color por defecto en interfaces estándar.",
+ "content/icon/subdued":"Color por defecto en interfaces estándar.",
+ "content/icon/on-color":"Color de icono sobre superficies con color.",
+ "content/icon/emphasis":"Color de icono sobre superficies con color.",
+ "content/icon/status/success":"Color de icono para estados de éxito.",
+ "content/icon/status/error":"Color de icono para estados de error.",
+ "content/icon/status/warning":"Color de icono para estados de advertencia.",
+ "content/icon/status/info":"Color de icono para estados informativos.",
+ "content/icon/status/disabled":"Color de icono para estados informativos.",
+ "border/on-color":"Borde sobre superficies con color.",
+ "border/default":"Borde estándar de componentes.",
+ "border/status/success":"Borde para estados de éxito.",
+ "border/status/error":"Borde para estados de error.",
+ "border/status/warning":"Borde para estados de advertencia.",
+ "border/status/info":"Borde para estados informativos.",
+ "border/interaction/hover":"Borde al pasar el cursor por encima (hover). Indica que el elemento es interactivo.",
+ "border/interaction/focus":"Borde del estado de foco (elemento enfocado por teclado o clic). Crítico para accesibilidad.",
+ "border/interaction/selected":"Borde de elemento seleccionado o activo (opción elegida, item marcado).",
+ "border/status/disabled":"Borde para estados informativos.",
+ "border/brand/default":"Borde activo para estados de foco.",
+ "border/brand/subtle":"Foco visual de baja intensidad.",
+ "border/brand/darker":"Foco visual de alta intensidad.",
+ "border/subdued":"Borde sutil para divisiones ligeras.",
+ "border/darker":"Borde de mayor contraste.",
+ "action/primary/default":"Estado base de acción primaria.",
+ "action/primary/hover":"Hover de acción primaria.",
+ "action/primary/pressed":"Estado presionado de acción primaria.",
+ "action/secondary/default":"Estado base de acción secundaria.",
+ "action/secondary/hover":"Hover de acción secundaria.",
+ "action/secondary/pressed":"Estado presionado de acción secundaria.",
+ "action/tertiary/default":"Estado base de acción terciaria.",
+ "action/tertiary/hover":"Hover de acción terciaria.",
+ "action/tertiary/pressed":"Estado presionado de acción terciaria.",
+ "action/link/default":"Estado base de enlace.",
+ "action/link/hover":"Hover de enlace.",
+ "action/link/pressed":"Estado presionado de enlace."
+};
+const DESC_TYPO={
+ "title/L":"Título principal de página o hero. Un solo H1 por pantalla.",
+ "title/M":"Título de sección importante (H2). Encabeza bloques mayores de contenido.",
+ "title/S":"Subtítulo de sección o título de tarjeta destacada (H3).",
+ "subtitle/L":"Texto introductorio bajo un título, o encabezado de subsección. Acompaña a un title.",
+ "subtitle/M":"Subtítulo menor o destacado dentro de contenido.",
+ "paragraph/L":"Párrafo destacado o texto introductorio (lead).",
+ "paragraph/M":"Texto de cuerpo por defecto. Tamaño base de lectura — úsalo cuando dudes.",
+ "paragraph/S":"Texto de cuerpo secundario, descripciones, texto de apoyo.",
+ "caption/M":"Etiquetas, metadatos, texto auxiliar bajo campos.",
+ "caption/S":"Texto legal, timestamps, notas al pie. Mínimo legible.",
+ "button/M":"Texto de botones estándar. Constante para mantener el área táctil.",
+ "button/S":"Texto de botones compactos o secundarios."
+};
+/* nombre legible = último segmento del token, capitalizado */
+function nameOf(tk){const seg=tk.split('/').pop().replace(/-/g,' ');return seg.charAt(0).toUpperCase()+seg.slice(1);}
+function useOf(tk){return DESC[tk]||'';}
+function useTypo(role){return DESC_TYPO[role]||'';}
+
+
+/* spacing */
+let sp='';const spGroups={inset:'Relleno interno (padding) de contenedores',stack:'Separación entre elementos apilados',section:'Aire entre secciones de página'};
+for(const g of ['inset','stack','section']){
+  sp+='<div class="grouph">space/'+g+' · <span style="text-transform:none;letter-spacing:0">'+spGroups[g]+'</span></div>';
+  sp+='<table><tr><th>Variable</th><th>Caso de uso (según su descripción en Figma)</th><th>Desktop</th><th>Mobile</th><th>Hereda</th></tr>'+
+   SPACING.filter(r=>r[0].startsWith('space/'+g)).map(([n,d,m])=>
+    '<tr><td class="tk">'+n+'</td><td style="color:var(--ink-soft)">'+useOf(n)+'</td><td class="vl">'+d+'</td><td class="vl">'+m+(m!==d?' <span style="color:var(--tobe)">≠</span>':'')+'</td><td><span class="ref toprim">→ '+d+'</span></td></tr>').join('')+'</table>';
+}
+$('r-spacing').innerHTML=sp;
+
+/* radius */
+$('r-radius').innerHTML='<table><tr><th>Variable</th><th>Caso de uso (según su descripción en Figma)</th><th>Valor</th><th>Muestra</th></tr>'+
+ RADIUS.map(([n,v])=>'<tr><td class="tk">'+n+'</td><td style="color:var(--ink-soft)">'+useOf(n)+'</td><td class="vl">'+(v===9999?'9999':v)+'</td><td><span style="display:inline-block;width:42px;height:26px;background:var(--prim);opacity:.5;border-radius:'+Math.min(v,13)+'px"></span></td></tr>').join('')+'</table>';
+
+/* stroke */
+$('r-stroke').innerHTML='<table><tr><th>Variable</th><th>Caso de uso (según su descripción en Figma)</th><th>Valor</th><th>Muestra</th></tr>'+
+ STROKE.map(([n,v])=>'<tr><td class="tk">'+n+'</td><td style="color:var(--ink-soft)">'+useOf(n)+'</td><td class="vl">'+v+'</td><td>'+(v?'<span style="display:inline-block;width:60px;border-top:'+v+'px solid var(--ink)"></span>':'<span class="vl">—</span>')+'</td></tr>').join('')+'</table>';
+
+/* devices */
+$('r-devices').innerHTML='<table><tr><th>Variable</th><th>Mobile</th><th>Tablet</th><th>Desktop</th><th></th></tr>'+
+ DEVICES.map(([n,a,b,c,alias])=>'<tr><td class="tk">'+n+'</td><td class="vl">'+a+'</td><td class="vl">'+b+'</td><td class="vl">'+c+'</td><td>'+(alias?'<span class="ref toprim">→ number-scale</span>':'')+'</td></tr>').join('')+'</table>';
+
+/* color-sem grouped */
+let cs='';const semGroups=[['surface/','surface · fondos por rol'],['content/text/','content/text · jerarquía de texto'],['content/icon/','content/icon · iconografía'],['border/','border · bordes y focos'],['action/','action · controles interactivos']];
+for(const [pre,title] of semGroups){
+  cs+='<div class="grouph">'+title+'</div><table><tr><th></th><th>Variable</th><th>Caso de uso</th><th>Light →</th><th>Dark →</th></tr>'+
+   COLORSEM.filter(r=>r[0].startsWith(pre)).map(([n,l,d])=>{
+     const h=hexOf(l)||'#ccc';
+     return '<tr><td style="width:28px"><span class="sw" style="background:'+h+'"></span></td><td class="tk">'+n+'</td><td style="color:var(--ink-soft);font-size:12px">'+useOf(n)+'</td><td><span class="ref toprim">'+l+'</span></td><td><span class="ref toprim">'+d+(d!==l?' <span style="color:var(--tobe)">≠</span>':'')+'</span></td></tr>';
+   }).join('')+'</table>';
+}
+$('r-colorsem').innerHTML=cs;
+
+/* typography-sem */
+let ts='<table><tr><th>Rol</th><th>Caso de uso (según su descripción en Figma)</th><th>Size desktop →</th><th>Size mobile →</th><th>Line-h d/m</th></tr>';
+for(const [role,[sd,sm,ld,lm]] of Object.entries(TYPOSEM)){
+  ts+='<tr><td class="tk">'+role+'</td><td style="color:var(--ink-soft);font-size:12px">'+useTypo(role)+'</td><td><span class="ref toprim">Font/size/'+sd+'</span></td><td><span class="ref toprim">Font/size/'+sm+'</span>'+(sm!==sd?' <span style="color:var(--tobe)">≠</span>':'')+'</td><td class="vl">'+(ld??'—')+' / '+(lm??'—')+'</td></tr>';
+}
+ts+='</table>';
+$('r-typosem').innerHTML=ts;
+
+/* color-comp matrices */
+let cc='';
+for(const [comp,states] of Object.entries(COLORCOMP)){
+  const props=[...new Set(Object.values(states).flatMap(o=>Object.keys(o)))];
+  cc+='<div class="grouph">'+comp+' <span class="pillct">'+Object.keys(states).length+' estados × '+props.length+' propiedades</span></div>';
+  cc+='<table><tr><th>Estado</th>'+props.map(p=>'<th>'+p+'</th>').join('')+'</tr>';
+  for(const [st,vals] of Object.entries(states)){
+    cc+='<tr><td class="tk">'+st+'</td>'+props.map(p=>{
+      const ref=vals[p];
+      if(!ref) return '<td class="vl">—</td>';
+      const short=ref.replace('content/text/','c.text/').replace('content/icon/','c.icon/').replace('surface/','surf/').replace('border/','bord/').replace('action/','act/');
+      return '<td><span class="ref" style="font-size:10.5px">→'+short+'</span></td>';
+    }).join('')+'</tr>';
+  }
+  cc+='</table>';
+}
+$('r-colorcomp').innerHTML=cc;
+</script>
+</body>
+</html>
